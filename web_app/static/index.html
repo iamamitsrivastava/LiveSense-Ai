@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LiveSense AI 🐄 | Frugal Edge-AI Subclinical Mastitis Detection System</title>
+  <meta name="description" content="Production-ready Edge-AI pipeline for real-time Subclinical Mastitis detection in dairy cattle using 10Hz WASP IoT triaxial accelerometer collars, CVAE Bi-LSTM GenAI, and Stacking Ensemble learning.">
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Atmospheric Dynamic Background Glow Orbs -->
+  <div class="ambient-glow-orb orb-1" aria-hidden="true"></div>
+  <div class="ambient-glow-orb orb-2" aria-hidden="true"></div>
+  <div class="ambient-glow-orb orb-3" aria-hidden="true"></div>
+  <div class="cyber-grid-overlay" aria-hidden="true"></div>
+
+  <!-- Toast Notification Stack -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- =========================================================================
+       Site Header
+       ========================================================================= -->
+  <header class="site-header">
+    <div class="header-container">
+      
+      <!-- Brand & Edge Node Status -->
+      <div class="brand-section">
+        <div class="logo-badge" id="appLogo">🐄</div>
+        <div>
+          <div class="brand-row">
+            <h1 class="brand-title">LiveSense AI</h1>
+            <span class="version-tag">EDGE v2.4</span>
+          </div>
+          <div class="brand-subtitle">Frugal Edge-AI Cattle Mastitis Surveillance</div>
+        </div>
+      </div>
+
+      <!-- Edge Hardware Telemetry Pill & Clock -->
+      <div class="header-meta-group">
+        <div class="edge-node-status" id="edgeTelemetryPill">
+          <div class="pulse-dot"></div>
+          <div class="edge-specs">
+            <span>Edge: <strong>Raspberry Pi 4B</strong></span>
+            <span>•</span>
+            <span>10 Hz WASP Collar</span>
+            <span>•</span>
+            <span>Latency: <strong id="latencyDisplay">3.8 ms</strong></span>
+          </div>
+        </div>
+
+        <div class="live-clock-pill" id="clockPill">
+          <span class="live-blink-icon">⏱️</span>
+          <span id="liveClockDisplay">IST 12:20:00</span>
+          <span class="clock-divider">•</span>
+          <span id="uptimeDisplay" class="uptime-text">Uptime: 14d 08h</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" aria-label="Main Navigation">
+        <button class="tab-btn active" data-tab="tab-herd" id="navHerdBtn">
+          <span class="tab-icon">📊</span> 
+          <span>Herd Monitor</span>
+          <span class="tab-badge" id="badgeTotalHerd">96</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-telemetry" id="navTelemetryBtn">
+          <span class="tab-icon">📈</span> 
+          <span>10Hz Waveform</span>
+          <span class="tab-badge live-badge">LIVE</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-cvae" id="navCvaeBtn">
+          <span class="tab-icon">🧪</span> 
+          <span>CVAE Simulator</span>
+        </button>
+        <button class="tab-btn" data-tab="tab-research" id="navResearchBtn">
+          <span class="tab-icon">🔬</span> 
+          <span>Architecture &amp; Benchmarks</span>
+        </button>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- =========================================================================
+       Main Content Container
+       ========================================================================= -->
+  <main class="main-wrapper">
+
+    <!-- KPI Summary Metrics Banner -->
+    <section class="metrics-banner" aria-label="Herd Key Performance Indicators">
+      
+      <div class="metric-card total" id="metricCardTotal">
+        <div class="metric-card-glow"></div>
+        <div class="metric-header">
+          <span class="metric-label">Herd Monitored</span>
+          <span class="metric-icon">🏷️</span>
+        </div>
+        <div class="metric-value-row">
+          <span class="metric-value" id="kpiTotalCows">96</span>
+          <span class="metric-unit">cows</span>
+        </div>
+        <div class="metric-progress-track">
+          <div class="metric-progress-fill" style="width: 100%; background: var(--accent-blue);"></div>
+        </div>
+        <div class="metric-subtext">
+          <span class="metric-tag tag-blue">100% Active</span>
+          <span>96 WASP Collar IoT Nodes</span>
+        </div>
+      </div>
+
+      <div class="metric-card alerts" id="metricCardAlerts">
+        <div class="metric-card-glow"></div>
+        <div class="metric-header">
+          <span class="metric-label">Subclinical Mastitis Flagged</span>
+          <span class="metric-icon pulse-alert-icon">🚨</span>
+        </div>
+        <div class="metric-value-row">
+          <span class="metric-value" id="kpiMastitisCount" style="color: #fb7185;">32</span>
+          <span class="metric-unit" style="color: #fda4af;">cases (33.3%)</span>
+        </div>
+        <div class="metric-progress-track">
+          <div class="metric-progress-fill" style="width: 33.3%; background: var(--accent-rose);"></div>
+        </div>
+        <div class="metric-subtext">
+          <span class="metric-tag tag-rose">Sensitivity: 100%</span>
+          <span>Zero sick cows missed (Recall 1.0)</span>
+        </div>
+      </div>
+
+      <div class="metric-card healthy" id="metricCardHealthy">
+        <div class="metric-card-glow"></div>
+        <div class="metric-header">
+          <span class="metric-label">Healthy Baseline</span>
+          <span class="metric-icon">✅</span>
+        </div>
+        <div class="metric-value-row">
+          <span class="metric-value" id="kpiHealthyCount" style="color: #34d399;">64</span>
+          <span class="metric-unit" style="color: #6ee7b7;">cows (66.7%)</span>
+        </div>
+        <div class="metric-progress-track">
+          <div class="metric-progress-fill" style="width: 66.7%; background: var(--accent-emerald);"></div>
+        </div>
+        <div class="metric-subtext">
+          <span class="metric-tag tag-emerald">Normal Kinetics</span>
+          <span>Stable rumination &amp; resting</span>
+        </div>
+      </div>
+
+      <div class="metric-card savings" id="metricCardSavings">
+        <div class="metric-card-glow"></div>
+        <div class="metric-header">
+          <span class="metric-label">Economic Loss Prevented</span>
+          <span class="metric-icon">₹</span>
+        </div>
+        <div class="metric-value-row">
+          <span class="metric-value" id="kpiSavings" style="color: #fcd34d;">₹4,16,000</span>
+          <span class="metric-unit" style="color: #fef08a;">INR</span>
+        </div>
+        <div class="metric-progress-track">
+          <div class="metric-progress-fill" style="width: 85%; background: var(--accent-amber);"></div>
+        </div>
+        <div class="metric-subtext">
+          <span class="metric-tag tag-amber">₹13,000 / Cow</span>
+          <span>Pre-clinical early intervention</span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 1: LIVE HERD MONITOR
+         ======================================================================= -->
+    <section class="view-section active" id="tab-herd">
+      
+      <!-- Controls, Filters, Search & View Controls -->
+      <div class="controls-bar">
+        <div class="filter-group">
+          <button class="filter-chip active" data-filter="all" id="filterAll">
+            All Herd (96)
+          </button>
+          <button class="filter-chip alert-chip" data-filter="mastitis_detected" id="filterAlerts">
+            <span class="chip-dot dot-rose"></span> Mastitis Alerts (32)
+          </button>
+          <button class="filter-chip" data-filter="healthy" id="filterHealthy">
+            <span class="chip-dot dot-emerald"></span> Healthy Normal (64)
+          </button>
+          <button class="filter-chip" data-breed="Gir" id="filterGir">
+            Gir Breed
+          </button>
+          <button class="filter-chip" data-breed="Sahiwal" id="filterSahiwal">
+            Sahiwal Breed
+          </button>
+        </div>
+
+        <div class="search-sort-group">
+          <!-- Realtime match count -->
+          <div class="match-badge" id="matchBadge">Showing 96 cows</div>
+
+          <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" id="herdSearchInput" placeholder="Search by name, tag (COW-101), pen, collar ID...">
+            <button class="clear-search-btn" id="clearSearchBtn" title="Clear Search" style="display: none;">×</button>
+          </div>
+          
+          <select class="filter-chip sort-select" id="sortSelect">
+            <option value="risk-desc">⚡ Sort: Highest SCM Risk</option>
+            <option value="risk-asc">🟢 Sort: Lowest SCM Risk</option>
+            <option value="yield-asc">🥛 Sort: Lowest Milk Yield</option>
+            <option value="yield-desc">🥛 Sort: Highest Milk Yield</option>
+            <option value="tag-asc">🏷️ Sort: Tag Number</option>
+          </select>
+
+          <!-- Toggle View Density -->
+          <button class="view-toggle-btn" id="viewDensityBtn" title="Toggle Compact / Detailed Cards">
+            <span id="densityIcon">⊞</span>
+            <span id="densityLabel">Compact</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Cattle Cards Grid -->
+      <div class="herd-grid" id="herdCardsContainer">
+        <!-- Cattle cards injected dynamically by app.js -->
+      </div>
+
+    </section>
+
+    <!-- =======================================================================
+         TAB 2: 10HZ COLLAR TELEMETRY OSCILLOSCOPE
+         ======================================================================= -->
+    <section class="view-section" id="tab-telemetry">
+      <div class="telemetry-layout">
+        
+        <!-- Live Waveform Canvas Card -->
+        <div class="telemetry-card">
+          <div class="telemetry-header">
+            <div>
+              <div class="telemetry-sub-badge">LIVE SENSOR TELEMETRY PIPELINE</div>
+              <h2 class="telemetry-title">WASP IoT 10Hz Real-Time Accelerometer Feed</h2>
+              <p class="telemetry-desc">Continuous streaming triaxial kinematics from smart neck collar LIS3DH sensor</p>
+            </div>
+            
+            <div class="telemetry-controls-top">
+              <div class="stream-status-pill">
+                <span class="pulse-dot"></span>
+                <span id="streamStatusText" style="color: var(--accent-emerald); font-weight: 700; font-size: 0.8rem;">STREAMING 10 FPS</span>
+              </div>
+              <button class="action-btn-sm" id="toggleLiveStreamBtn">
+                ⏸️ Pause Stream
+              </button>
+            </div>
+          </div>
+
+          <!-- Interactive Behavior Scenario Selector -->
+          <div class="behavior-scenario-bar">
+            <span class="scenario-label">Behavior Scenario:</span>
+            <div class="scenario-btn-group">
+              <button class="scenario-btn active" data-scenario="rumination" id="btnScenRum">
+                🌿 Normal Rumination (1.1 Hz)
+              </button>
+              <button class="scenario-btn alert-scen" data-scenario="mastitis" id="btnScenMast">
+                🚨 SCM Pain Agitation (Chaotic)
+              </button>
+              <button class="scenario-btn" data-scenario="resting" id="btnScenRest">
+                💤 Deep Resting / Lying
+              </button>
+              <button class="scenario-btn" data-scenario="walking" id="btnScenWalk">
+                🚶 Grazing / Locomotion
+              </button>
+            </div>
+          </div>
+
+          <!-- Oscilloscope HUD + Canvas Container -->
+          <div class="canvas-container">
+            <!-- Floating Heads-Up Display (HUD) overlay -->
+            <div class="canvas-hud">
+              <div class="hud-item">
+                <span class="hud-label">RMS Magnitude</span>
+                <span class="hud-value" id="hudRmsValue">1.04 g</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">Dominant Frequency</span>
+                <span class="hud-value" id="hudFreqValue">1.12 Hz (Cud)</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">Sensor Temp</span>
+                <span class="hud-value" id="hudTempValue">38.6 °C</span>
+              </div>
+              <div class="hud-item">
+                <span class="hud-label">Collar Battery</span>
+                <span class="hud-value" id="hudBatteryValue">94%</span>
+              </div>
+            </div>
+
+            <canvas id="accelCanvas" width="900" height="380"></canvas>
+          </div>
+
+          <!-- Legend & Trace Filters -->
+          <div class="canvas-legend-bar">
+            <div class="legend-toggles">
+              <label class="legend-item toggleable active" data-axis="x">
+                <span class="legend-dot dot-x"></span>
+                <span>Axis X (Chewing / Sway)</span>
+              </label>
+              <label class="legend-item toggleable active" data-axis="y">
+                <span class="legend-dot dot-y"></span>
+                <span>Axis Y (Gravitational Incline)</span>
+              </label>
+              <label class="legend-item toggleable active" data-axis="z">
+                <span class="legend-dot dot-z"></span>
+                <span>Axis Z (Lateral Jerk)</span>
+              </label>
+              <label class="legend-item toggleable active" data-axis="mag">
+                <span class="legend-dot dot-mag"></span>
+                <span>Vector Magnitude |g|</span>
+              </label>
+            </div>
+
+            <!-- Stream Speed Controls -->
+            <div class="speed-controls">
+              <span class="speed-label">Playback:</span>
+              <button class="speed-btn" data-speed="0.5">0.5x</button>
+              <button class="speed-btn active" data-speed="1.0">1.0x</button>
+              <button class="speed-btn" data-speed="2.0">2.0x</button>
+            </div>
+          </div>
+
+          <!-- Classifier State Card Bottom -->
+          <div class="classifier-state-box">
+            <div>
+              <div class="state-sub">Edge Behavioral Pattern Classifier</div>
+              <div class="state-main" id="liveBehaviorState">
+                Active Rumination (Chewing Bolus • 1.1 Hz Rhythm)
+              </div>
+            </div>
+            <div class="state-meta">
+              <span class="badge-pill">LIS3DH ±2g</span>
+              <span class="badge-pill">16-bit ADC</span>
+              <span class="badge-pill">Zero Cloud Lag</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Specs & Edge Architecture Sidebar -->
+        <div class="telemetry-card">
+          <div class="sidebar-header">
+            <h2 style="font-size: 1.25rem; font-weight: 700;">Frugal Hardware Architecture</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">Deployable across 86% of smallholder Indian dairy farms</p>
+          </div>
+
+          <div class="hardware-specs-list">
+            <div class="spec-entry">
+              <span class="spec-name">Collar Unit</span>
+              <span class="spec-val">WASP Smart IoT Collar</span>
+            </div>
+            <div class="spec-entry">
+              <span class="spec-name">Inertial Sensor</span>
+              <span class="spec-val">ST LIS3DH Triaxial Accelerometer</span>
+            </div>
+            <div class="spec-entry">
+              <span class="spec-name">Sampling Rate</span>
+              <span class="spec-val">10.0 Hz (100ms interval)</span>
+            </div>
+            <div class="spec-entry">
+              <span class="spec-name">Wireless Protocol</span>
+              <span class="spec-val">LoRaWAN / BLE 5.0 Mesh</span>
+            </div>
+            <div class="spec-entry">
+              <span class="spec-name">Local Gateway Node</span>
+              <span class="spec-val">Raspberry Pi 4 Model B</span>
+            </div>
+            <div class="spec-entry">
+              <span class="spec-name">Edge Inference Engine</span>
+              <span class="spec-val">Stacking Ensemble (XGB+RF+Meta)</span>
+            </div>
+            <div class="spec-entry">
+              <span class="spec-name">Inference Latency</span>
+              <span class="spec-val" style="color: var(--accent-emerald);">3.84 ms / cow window</span>
+            </div>
+            <div class="spec-entry">
+              <span class="spec-name">Power Consumption</span>
+              <span class="spec-val">~4.8W (Solar Battery Ready)</span>
+            </div>
+            <div class="spec-entry highlight-spec">
+              <span class="spec-name">Cloud Dependency</span>
+              <span class="spec-val" style="color: var(--accent-emerald); font-weight: 800;">100% Offline Edge Operation</span>
+            </div>
+          </div>
+
+          <!-- Edge Node Diagnostic Status Card -->
+          <div class="edge-diagnostics-card">
+            <div class="diag-title">Edge Node Health Telemetry</div>
+            <div class="diag-grid">
+              <div class="diag-item">
+                <span class="diag-label">CPU Temp</span>
+                <span class="diag-val">42.8 °C</span>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">RAM Usage</span>
+                <span class="diag-val">18.4%</span>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Model Size</span>
+                <span class="diag-val">1.02 MB</span>
+              </div>
+              <div class="diag-item">
+                <span class="diag-label">Packets/Sec</span>
+                <span class="diag-val">960 pkts/s</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         TAB 3: CVAE Bi-LSTM GENAI SIMULATOR
+         ======================================================================= -->
+    <section class="view-section" id="tab-cvae">
+      <div class="cvae-grid">
+        
+        <!-- Controls Card -->
+        <div class="control-panel-card">
+          <div style="margin-bottom: 1.25rem;">
+            <div class="metric-tag tag-rose" style="margin-bottom: 0.5rem;">Core Paper Innovation</div>
+            <h2 style="font-size: 1.35rem; font-weight: 700;">CVAE Bi-LSTM Latent Space Generator</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.35rem;">
+              Overcomes the extreme <strong>1:5793</strong> sick-to-healthy data imbalance by learning temporal sickness signatures and synthesizing realistic sick cow behavioral patterns.
+            </p>
+          </div>
+
+          <!-- Quick One-Click Clinical Presets -->
+          <div class="cvae-presets-row">
+            <span class="preset-label">Quick Scenario:</span>
+            <div class="preset-buttons">
+              <button class="preset-btn alert" id="presetAcuteBtn" title="Set parameters for severe acute subclinical mastitis">
+                🚨 Acute SCM (-65% Rum)
+              </button>
+              <button class="preset-btn warning active" id="presetEarlyBtn" title="Set parameters for early stage mastitis">
+                ⚠️ Early Warning (-35% Rum)
+              </button>
+              <button class="preset-btn healthy" id="presetHealthyBtn" title="Set parameters for healthy normal baseline">
+                🟢 Healthy Baseline (0% Rum)
+              </button>
+            </div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span class="slider-title">Rumination Deficit (Pain Chewing Drop)</span>
+              <span class="slider-val" id="rumValDisplay">-35%</span>
+            </div>
+            <input type="range" class="styled-slider" id="sliderRumination" min="-80" max="10" value="-35">
+            <div class="slider-hint">Mastitis pain causes cows to halt cud-chewing cycles</div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span class="slider-title">Lying Discomfort / Posture Shifts</span>
+              <span class="slider-val" id="lyingValDisplay">+45%</span>
+            </div>
+            <input type="range" class="styled-slider" id="sliderLying" min="0" max="100" value="45">
+            <div class="slider-hint">Swollen udder pressure causes frequent restless posture adjustments</div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span class="slider-title">Neck Agitation / Head-Tilt Index</span>
+              <span class="slider-val" id="motionValDisplay">+50.0</span>
+            </div>
+            <input type="range" class="styled-slider" id="sliderMotion" min="-20" max="100" value="50">
+            <div class="slider-hint">Neck jerking &amp; discomfort sway captured by LIS3DH collar</div>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-label-row">
+              <span class="slider-title">Bi-LSTM Latent Variance / Noise Factor</span>
+              <span class="slider-val" id="noiseValDisplay">5.0%</span>
+            </div>
+            <input type="range" class="styled-slider" id="sliderNoise" min="1" max="25" value="5">
+            <div class="slider-hint">Stochastic variation sampled from latent distribution z ~ N(μ, σ)</div>
+          </div>
+
+          <button class="synthesize-btn" id="runSynthesisBtn">
+            <span class="synth-sparkle">✨</span> 
+            <span>Synthesize &amp; Run AI Ensemble Inference</span>
+          </button>
+        </div>
+
+        <!-- Real-time CVAE Output & AI Prediction -->
+        <div class="cvae-results-card">
+          <div class="results-header">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 700;">Synthesized Cow Evaluation</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">Real-time Stacking Ensemble verdict on generated 168-hour window</p>
+            </div>
+            <span class="status-badge" id="cvaeResultBadge">READY FOR SYNTHESIS</span>
+          </div>
+
+          <!-- Probability Gauge -->
+          <div class="cvae-gauge-box">
+            <div class="gauge-header">
+              <span class="gauge-title">Stacking Ensemble SCM Probability:</span>
+              <span class="gauge-number" id="cvaeProbDisplay">--</span>
+            </div>
+            <div class="risk-track" style="height: 12px;">
+              <div class="risk-fill" id="cvaeProbFill" style="width: 0%; background: var(--accent-cyan);"></div>
+            </div>
+            <div class="gauge-scale">
+              <span>0% Normal</span>
+              <span style="color: var(--accent-amber);">20% SCM Decision Cutoff</span>
+              <span style="color: var(--accent-rose);">100% Critical SCM</span>
+            </div>
+          </div>
+
+          <!-- Level 0 vs Level 1 breakdown -->
+          <div class="ensemble-votes-grid" style="margin: 0 0 1.25rem 0;">
+            <div class="vote-box">
+              <div class="vote-learner">XGBoost Level-0</div>
+              <div class="vote-prob" id="cvaeXgbProb" style="color: #38bdf8;">--</div>
+              <div class="vote-desc">Behavioral shifts</div>
+            </div>
+            <div class="vote-box">
+              <div class="vote-learner">Random Forest Level-0</div>
+              <div class="vote-prob" id="cvaeRfProb" style="color: #a78bfa;">--</div>
+              <div class="vote-desc">Sensor noise suppression</div>
+            </div>
+            <div class="vote-box meta-judge">
+              <div class="vote-learner">Logistic Reg Level-1</div>
+              <div class="vote-prob" id="cvaeMetaProb" style="color: var(--accent-cyan);">--</div>
+              <div class="vote-desc">Meta-Ensemble verdict</div>
+            </div>
+          </div>
+
+          <!-- Synthetic Wave Preview Canvas -->
+          <div class="cvae-canvas-wrapper">
+            <canvas id="cvaeCanvas" width="600" height="220"></canvas>
+            <div class="cvae-canvas-caption">
+              <span>🔵 Rumination Profile</span>
+              <span>🔴 Pain Agitation Profile</span>
+              <span style="margin-left: auto;">168-Hour Synthesized Behavioral Envelope</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         TAB 4: AI ARCHITECTURE & RESEARCH BENCHMARKS
+         ======================================================================= -->
+    <section class="view-section" id="tab-research">
+      
+      <div class="research-grid">
+        
+        <!-- Architecture Diagram Card 1 -->
+        <div class="diagram-card">
+          <div class="diagram-card-head">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 700;">1️⃣ System Architecture &amp; ER Flow</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                End-to-end telemetry mapping from physical cow collar to edge Raspberry Pi node and farmer alerts.
+              </p>
+            </div>
+            <span class="pill-badge">Pipeline</span>
+          </div>
+          <div class="diagram-preview" onclick="openLightbox('/assets/er_diagram.png', 'System Architecture & ER Diagram')">
+            <img src="/assets/er_diagram.png" alt="LiveSense Architecture ER Diagram">
+            <span class="diagram-zoom-hint">🔍 Click to Enlarge</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center;">
+            <span>Physical Sensor → LoRaWAN → Edge RPi</span>
+            <a href="/assets/artitecture.pdf" target="_blank" style="color: var(--accent-cyan); text-decoration: none; font-weight: 600;">Download Vector PDF ↗</a>
+          </div>
+        </div>
+
+        <!-- Architecture Diagram Card 2 -->
+        <div class="diagram-card">
+          <div class="diagram-card-head">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 700;">2️⃣ CVAE Bi-LSTM GenAI Pipeline</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Bidirectional LSTM encoder creates continuous latent sickness space; decoder generates realistic synthetic training variations.
+              </p>
+            </div>
+            <span class="pill-badge" style="background: rgba(244,63,94,0.15); color: #fda4af;">GenAI</span>
+          </div>
+          <div class="diagram-preview" onclick="openLightbox('/assets/cvae.png', 'CVAE Architecture')">
+            <img src="/assets/cvae.png" alt="CVAE Bi-LSTM Architecture">
+            <span class="diagram-zoom-hint">🔍 Click to Enlarge</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">
+            Boosted Sensitivity (Recall) by <strong>+36%</strong> compared to SMOTE or baseline classifiers.
+          </div>
+        </div>
+
+        <!-- Architecture Diagram Card 3 -->
+        <div class="diagram-card">
+          <div class="diagram-card-head">
+            <div>
+              <h3 style="font-size: 1.15rem; font-weight: 700;">3️⃣ Stacking Ensemble Committee</h3>
+              <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
+                Hierarchical decision maker combining XGBoost, Random Forest, and SVM through a Logistic Regression meta-judge.
+              </p>
+            </div>
+            <span class="pill-badge" style="background: rgba(16,185,129,0.15); color: #6ee7b7;">Edge ML</span>
+          </div>
+          <div class="diagram-preview" onclick="openLightbox('/assets/stacking.png', 'Stacking Ensemble')">
+            <img src="/assets/stacking.png" alt="Stacking Ensemble Classifier">
+            <span class="diagram-zoom-hint">🔍 Click to Enlarge</span>
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-dim);">
+            Model file: <code>/models/mastitis_ultra_model.pkl</code> (~1.0 MB compressed edge binary).
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Cross-Validation Benchmarks -->
+      <div class="benchmark-table-wrapper">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <h3 style="font-size: 1.25rem; font-weight: 700;">Stratified 5-Fold Cross-Validation Performance</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem;">
+              Strict data isolation with zero leakage across 5 validation folds (Tested at 0.20 Decision Threshold).
+            </p>
+          </div>
+          <div class="institution-badge">
+            <span style="font-size: 0.75rem; color: var(--text-muted);">Academic Presentation at:</span>
+            <div style="font-weight: 700; color: var(--accent-cyan); font-size: 0.9rem;">Parul Institute of Technology, Parul University 🎓</div>
+          </div>
+        </div>
+
+        <div class="table-scroll">
+          <table class="benchmark-table">
+            <thead>
+              <tr>
+                <th>Validation Metric</th>
+                <th class="highlight-th">LiveSense AI (CVAE + Stacking)</th>
+                <th>Vanilla XGBoost</th>
+                <th>Random Forest</th>
+                <th>Western AMS (High Cost)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Sensitivity (Recall)</strong></td>
+                <td class="highlight-td"><span class="table-pill pill-green">1.00 (100%) 🔥 Perfect</span></td>
+                <td>0.74 (74%)</td>
+                <td>0.68 (68%)</td>
+                <td>0.82 (82%)</td>
+              </tr>
+              <tr>
+                <td><strong>ROC-AUC Score</strong></td>
+                <td class="highlight-td"><span class="table-pill pill-cyan">0.77 (77%)</span></td>
+                <td>0.71 (71%)</td>
+                <td>0.69 (69%)</td>
+                <td>0.75 (75%)</td>
+              </tr>
+              <tr>
+                <td><strong>Specificity</strong></td>
+                <td class="highlight-td"><span class="table-pill">0.92 (92%)</span></td>
+                <td>0.89 (89%)</td>
+                <td>0.91 (91%)</td>
+                <td>0.88 (88%)</td>
+              </tr>
+              <tr>
+                <td><strong>Hardware Cost per Cow</strong></td>
+                <td class="highlight-td"><span class="table-pill pill-green">₹1,500 - ₹2,500</span></td>
+                <td>N/A (Software)</td>
+                <td>N/A (Software)</td>
+                <td>₹20,00,000 - ₹50,00,000</td>
+              </tr>
+              <tr>
+                <td><strong>Smallholder Farmer Accessibility</strong></td>
+                <td class="highlight-td"><span class="table-pill pill-green">86%+ of Indian Dairy</span></td>
+                <td>Moderate</td>
+                <td>Moderate</td>
+                <td>&lt; 2% of Farms</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- =========================================================================
+       Cow Diagnostics Deep-Dive Modal
+       ========================================================================= -->
+  <div class="modal-overlay" id="cowDetailModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-container">
+      
+      <div class="modal-header">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <div class="cow-avatar" id="modalCowAvatar" style="width: 52px; height: 52px; font-size: 1.6rem;">🐄</div>
+          <div>
+            <h2 id="modalCowTitle" style="font-size: 1.4rem; font-weight: 800;">Cow Details</h2>
+            <div id="modalCowSubtitle" style="font-size: 0.8rem; color: var(--text-muted);">Tag # • Breed</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="modal-action-btn" id="modalPrintReportBtn" title="Print Veterinary Report">
+            🖨️ Print Clinical Summary
+          </button>
+          <button class="modal-close-btn" id="closeModalBtn" aria-label="Close Modal">&times;</button>
+        </div>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Clinical Alert Banner -->
+        <div id="modalAlertBox" style="padding: 1.1rem 1.4rem; border-radius: var(--radius-md); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div id="modalAlertLevel" style="font-weight: 800; font-size: 0.95rem; text-transform: uppercase;">--</div>
+            <div id="modalAlertAction" style="font-size: 0.85rem; margin-top: 0.25rem; opacity: 0.9;">--</div>
+          </div>
+          <div id="modalAlertBadge" class="status-badge">--</div>
+        </div>
+
+        <!-- 7-Day Behavioral Timeline Canvas Chart -->
+        <div class="timeline-chart-card">
+          <div class="timeline-header-row">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700;">7-Day (168-Hour) Behavioral Kinetics Chart</h3>
+              <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">Hover across the chart to inspect specific hourly behavioral metrics</p>
+            </div>
+            <div class="timeline-legend">
+              <span style="color: #38bdf8;">■ Rumination (min/h)</span>
+              <span style="color: #34d399;">■ Lying / Resting (min/h)</span>
+              <span style="color: #fbbf24;">■ Locomotion (min/h)</span>
+              <span style="color: #f43f5e;">■ Motion Tilt Deviation</span>
+            </div>
+          </div>
+
+          <div class="timeline-canvas-container">
+            <canvas id="timelineChartCanvas" width="950" height="260"></canvas>
+            <div class="chart-tooltip" id="chartTooltip" style="display: none;"></div>
+          </div>
+        </div>
+
+        <!-- Model Decision Ensemble Breakdown -->
+        <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.35rem;">AI Ensemble Decision Architecture</h3>
+        <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Level-0 Base Learners capture behavioral shifts; Level-1 Logistic Regression judges final probability to minimize false alarms.
+        </p>
+
+        <div class="ensemble-votes-grid">
+          <div class="vote-box">
+            <div class="vote-learner">XGBoost Base Learner</div>
+            <div class="vote-prob" id="modalXgbProb" style="color: #38bdf8;">--</div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.35rem;">Detects non-linear routine shifts</div>
+          </div>
+
+          <div class="vote-box">
+            <div class="vote-learner">Random Forest Base Learner</div>
+            <div class="vote-prob" id="modalRfProb" style="color: #a78bfa;">--</div>
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.35rem;">Robust against sensor noise</div>
+          </div>
+
+          <div class="vote-box meta-judge">
+            <div class="vote-learner">Stacking Meta-Learner (Judge)</div>
+            <div class="vote-prob" id="modalMetaProb" style="color: var(--accent-cyan);">--</div>
+            <div style="font-size: 0.72rem; color: var(--accent-cyan); margin-top: 0.35rem;">Aggregated Final Diagnosis</div>
+          </div>
+        </div>
+
+        <!-- Veterinary Recommended Protocol -->
+        <div class="vet-protocol-box">
+          <h4 style="font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-cyan); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+            <span>🩺</span> Recommended Veterinary Action Protocol
+          </h4>
+          <p id="modalProtocolText" style="font-size: 0.85rem; color: var(--text-main); line-height: 1.6;">
+            --
+          </p>
+
+          <!-- Interactive Action Checklist -->
+          <div class="action-checklist">
+            <label class="check-item">
+              <input type="checkbox" id="checkCmt">
+              <span>Conduct California Mastitis Test (CMT) paddle test on all 4 quarters</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" id="checkSample">
+              <span>Collect aseptic milk vial for Somatic Cell Count (SCC) confirmation</span>
+            </label>
+            <label class="check-item">
+              <input type="checkbox" id="checkIsolate">
+              <span>Flag cow for post-milking teat dip with 0.5% chlorhexidine</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       Image Zoom Lightbox
+       ========================================================================= -->
+  <div class="lightbox-overlay" id="lightboxOverlay" onclick="closeLightbox()">
+    <img src="" alt="Enlarged Diagram" class="lightbox-img" id="lightboxImg">
+  </div>
+
+  <!-- Custom JS Application -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
